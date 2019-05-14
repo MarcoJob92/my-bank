@@ -3,7 +3,8 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class Customer {
 	
@@ -30,6 +31,10 @@ public class Customer {
     	this.fullName = fullName;
     }
     
+    public List<Account> getAccounts() {
+        return accounts;
+    }
+    
     // Utility Methods
     
     public void openAccount(Account account) {
@@ -39,58 +44,52 @@ public class Customer {
     public int getNumberOfAccounts() {
         return accounts.size();
     }
+    
+    public String getCustomerSummary() {
+    	int number = getNumberOfAccounts();
+    	String summary = getFullName() + ": " + number;
+    	summary += (number == 1 ? " account" : " accounts");
+        return summary;
+    }
 
+    // returns Interests earned by the Customer, splitted by the currency
     public HashMap<String, Double> totalInterestEarned() {
-    	HashMap<String, Double> currencyAmounts = new HashMap<String, Double>();
-        for (Account a : accounts) {
-        	currencyAmounts = manageCurrencies(currencyAmounts, a.getInterestEarned(), a);
-        }
-        return currencyAmounts;
+    	return totalInterestEarned(accounts);
+    }
+    static public HashMap<String, Double> totalInterestEarned(List<Account> accounts) {
+    	HashMap<String, Double> interests = new HashMap<String, Double>();
+    	accounts.stream()
+    		.map(a -> a.getInterestAndCurrency())
+    		.forEach(e -> {
+    			Double amountValue = interests.getOrDefault(e.getKey(), 0.0);
+    			interests.put( e.getKey(), amountValue + e.getValue() );
+    		}
+    	);
+        return interests;
     }
     
-    // Statement showing transactions and totals for each of the Customer's accounts
+    // Statement that shows transactions and totals for each of the Customer's accounts
     public String getStatementForAllAccounts() {
-    	HashMap<String, Double> currencyAmounts = new HashMap<String, Double>();
-    	String statement = "Statement for " + fullName + "\n";
-        for (Account a : accounts) {
-            statement += a.getStatement();
-            currencyAmounts = manageCurrencies(currencyAmounts, a.getTotalAmount(), a);
-        }
-        statement += "\nTotal In All Accounts:\n";
-        for(Entry<String, Double> e : currencyAmounts.entrySet()) {
-        	statement += "- " + e.getKey() + e.getValue() + "\n";
-        }
-        return statement;
-    }
-    
-    // Manage different Account currencies owned by a single Customer 
-    private HashMap<String, Double> manageCurrencies(HashMap<String, Double> currencyAmounts, 
-    		double total, Account a){
-    	// if currency already exists
-	if (currencyAmounts.get(a.getCurrencySymbol()) != null) {
-		total += currencyAmounts.get(a.getCurrencySymbol());
-	}
-	// add total amount into map that contains associated currencies 
-	currencyAmounts.put(a.getCurrencySymbol(), total);
-	return currencyAmounts;
+    	return fullName + "'s statement \n" +
+    	accounts.stream()
+    		.map(Account::getStatement)
+    		.collect(Collectors.joining());
     }
     
     public String getInformationOnCustomerAccounts() {
-    	String str = "";
-    	for (Account a : accounts) {
-    		str += a.getAccountInformation();
-    	}
-    	return str;
+    	return accounts.stream()
+    		       .map(Account::getAccountInformation)
+    		       .collect(Collectors.joining());
     }
     
-    // A customer can transfer between his accounts using account IDs
+    // Transfers amount between two Customer's accounts, using Account IDs
     public void transferBetweenTwoAccounts(double amount, int senderId, int destinationId) 
     		throws IllegalArgumentException, UnsupportedOperationException {
     	Account sender = getAccountById(senderId);
     	Account destination = getAccountById(destinationId);
     	transferBetweenTwoAccounts(amount, sender, destination);
     } 
-    // A customer can transfer between his accounts using Account Objects
+    // Transfers amount between two Customer's accounts, using Account Objects
     public void transferBetweenTwoAccounts(double amount, Account sender, Account dest)
     		throws IllegalArgumentException, UnsupportedOperationException {
     	if (sender.equals(dest)) {
@@ -105,13 +104,10 @@ public class Customer {
     	}
     }
     
-    public Account getAccountById(int id) {
-    	for (Account a : accounts) {
-    		if (a.getId() == id) {
-    			return a;
-    		}
-    	}
-	return null;
+    public Account getAccountById(int id) throws NoSuchElementException {
+    	return accounts.stream()
+    			.filter(a -> a.getId() == id)
+    			.findFirst().get();
     }
     
 }
