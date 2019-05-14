@@ -2,23 +2,20 @@ package com.abc;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import consts.Constants;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class CustomerTest {
 	
-	private static final String fullName = "Oscar Wilde";
-	private Customer customer;
-	private Account checkingAccount = new Account(Constants.ACCOUNT_CHECKING_ID, Locale.UK);
-	private Account savingsAccount = new Account(Constants.ACCOUNT_SAVINGS_ID, Locale.UK);
-	private Account maxiSavingsAccount = new Account(Constants.ACCOUNT_MAXI_SAVINGS_ID, Locale.ITALY);
+    private static final String fullName = "Oscar Wilde";
+    private Customer customer;
+    private Account checkingAccount = new Account(Constants.ACCOUNT_CHECKING_ID, Locale.UK);
+    private Account savingsAccount = new Account(Constants.ACCOUNT_SAVINGS_ID, Locale.UK);
+    private Account maxiSavingsAccount = new Account(Constants.ACCOUNT_MAXI_SAVINGS_ID, Locale.ITALY);
 	
     @Before
     public void setUpCustomerWithMultipleAccounts(){
@@ -47,7 +44,7 @@ public class CustomerTest {
     public void testAccountStatements(){
     	System.out.println(customer.getStatementForAllAccounts());
     	
-    	String statement = "Statement for "+fullName + "\n\n" + 
+    	String statement = fullName + "'s statement \n\n" + 
     			checkingAccount.getAccountTypeName() + "\n" +
     			"\t" + Constants.DEPOSIT +" £1,000.00" + "\n" +
     			"\t" + Constants.DEPOSIT +" £300.00" + "\n" +
@@ -57,10 +54,7 @@ public class CustomerTest {
     			"Total: £200.00\n\n" +
     			maxiSavingsAccount.getAccountTypeName() + "\n" +
     			"\t" + Constants.DEPOSIT +" €500.00" + "\n" +
-    			"Total: €500.00\n\n" +
-    			"Total In All Accounts:\n"+
-    			"- £1500.0\n" + 
-    			"- €500.0\n";
+    			"Total: €500.00\n";
     	
         assertEquals(statement, customer.getStatementForAllAccounts());
     }
