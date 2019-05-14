@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import consts.Constants;
 
 public class Bank {
-	private String name;
+    private String name;
     private List<Customer> customers = new ArrayList<Customer>();
     
     public Bank(String name) {
