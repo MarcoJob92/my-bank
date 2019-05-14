@@ -87,7 +87,7 @@ public class Account {
         }
     }
 	
-    // It accrues one-day interest rates. Ideally it should be called once a day.
+    // Accrues one-day interest rates. Ideally it should be called once a day.
     public void accrueInterests() {
         double amount = getTotalAmount();
         switch(accountType){
