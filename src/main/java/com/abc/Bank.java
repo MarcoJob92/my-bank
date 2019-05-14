@@ -3,10 +3,13 @@ package com.abc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+import consts.Constants;
 
 public class Bank {
-    private String name;
+	private String name;
     private List<Customer> customers = new ArrayList<Customer>();
     
     public Bank(String name) {
@@ -28,43 +31,33 @@ public class Bank {
         customers.add(customer);
     }
 
-    public String customerSummary() {
-        String summary = "Customer Summary";
-        for (Customer c : customers)
-            summary += "\n - " + c.getFullName() + " (" + 
-            	addSifPlural(c.getNumberOfAccounts(), "account") + ")";
+    public String getBankSummary() {
+        String summary = "Bank Summary";
+        summary += customers.stream()
+        		.map(Customer::getCustomerSummary)
+        		.sorted()
+        		.collect(Collectors.joining(Constants.NEW_LINE_DASH, Constants.NEW_LINE_DASH, ""));
         return summary;
     }
-    
-    private String addSifPlural(int number, String word) {
-        return number + " " + (number == 1 ? word : word + "s");
-    }
 
-    // Calculate Total Interest Paid for each currency
-    public String totalInterestPaid() {
-    	HashMap<String, Double> interestDifferentCurrencies = new HashMap<String, Double>();
-        for(Customer c: customers) {
-        	HashMap<String, Double> interestsEarnedCustomer = c.totalInterestEarned();
-        	for(Entry<String, Double> e : interestsEarnedCustomer.entrySet()) {
-        		Double amountValue = interestDifferentCurrencies.getOrDefault(e.getKey(), 0.0);
-        		interestDifferentCurrencies.put( e.getKey(), (amountValue + e.getValue()) );
-            }
-        }
-        String statement = "\n"+"Total Interest Paid:\n";
-        for(Entry<String, Double> e : interestDifferentCurrencies.entrySet()) {
-        	statement += "- " + e.getKey() + e.getValue() + "\n";
-        }
-        return statement;
+    // Calculates Total Interest Paid for each currency, returns a String to be printed
+    public String getTotalInterestPaid() {
+    	List<Account> allAccounts = customers.stream()
+    			.flatMap(customer -> customer.getAccounts().stream())
+    			.collect(Collectors.toList());
+    	
+        HashMap<String, Double> interests = Customer.totalInterestEarned(allAccounts);
+        
+        return interests.entrySet().stream()
+        		 .map(e -> e.getKey() + e.getValue())
+        		 .collect(Collectors.joining(Constants.NEW_LINE_DASH, "\nTotal Interest Paid:\n", ""));
     }
     
-    
-    public Customer getCustomerByFullName(String fullName) {
-        for (Customer c : customers) {
-        	if (c.getFullName().equals(fullName)) {
-        		return c;
-        	}
-        }
-        return null;
+    public Customer getCustomerByFullName(String fullName) throws NoSuchElementException {
+    	return customers.stream()
+    			.filter(c -> c.getFullName().equals(fullName))
+    			.findFirst()
+    			.get();
     }
     
 }
