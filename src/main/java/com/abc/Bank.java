@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import consts.Constants;
 
+// Developed by Marco Furone
 public class Bank {
     private String name;
     private List<Customer> customers = new ArrayList<Customer>();
