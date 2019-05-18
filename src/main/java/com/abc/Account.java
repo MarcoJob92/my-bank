@@ -62,8 +62,8 @@ public class Account {
     
     public double getTotalAmount() {
     	return transactions.stream()
-    			.map(t -> t.getAmount())
-    			.reduce(0.0, (sum, a) -> sum + a);
+    			   .map(t -> t.getAmount())
+    			   .reduce(0.0, (sum, a) -> sum + a);
     }
     
     public void deposit(double amount) throws IllegalArgumentException {
@@ -117,18 +117,18 @@ public class Account {
     
     public Transaction getLastWithdrawal() {
     	return transactions.stream()
-    			.filter(t -> t.getTransactionType().equals(Constants.WITHDRAWAL))
-    			.reduce((x, last) -> last).orElse(null);
+    			   .filter(t -> t.getTransactionType().equals(Constants.WITHDRAWAL))
+    			   .reduce((x, last) -> last).orElse(null);
     }
     
     // Account Statement with all the transactions
     public String getStatement() {
     	return transactions.stream()
-    				.map(t -> t.getTransactionType() + " " + formatAmount(t.getAmount()))
-    				.collect(Collectors.joining(
-    						"\n\t",
-    						"\n" + getAccountTypeName() + "\n\t",
-    						"\nTotal: " + formatAmount(getTotalAmount()) + "\n"));
+    			   .map(t -> t.getTransactionType() + " " + formatAmount(t.getAmount()))
+    			   .collect(Collectors.joining(
+    					"\n\t",
+    					"\n" + getAccountTypeName() + "\n\t",
+    					"\nTotal: " + formatAmount(getTotalAmount()) + "\n"));
     }
     
     public String getAccountInformation() {
